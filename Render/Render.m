@@ -102,14 +102,15 @@ ShowMesh3D[mesh_,opts:OptionsPattern[]]:=Module[
 
 (* planar tri mesh *)
 
-render2d[mesh_] :=
+Clear[render2d];
+render2d[mesh_, opts:OptionsPattern[]] :=
   Show[
    ShowMesh[mesh
+   	,FilterRules[{opts},Options[ShowMesh]]
     , "edgeColor" -> {
       Opacity[0.3, Black]
       , Thickness[Min[0.002, 0.1 Sqrt[1.0/Length[mesh[[2]]]]]]
       }
-    (*, "showBadVertex" -> True, "badPointSize" -> 0.01*)
     , "showBad" -> True
     ]
    ,
@@ -123,7 +124,8 @@ col = {184, 151, 128}/255.0;
 
 getRange[verts_] := Max[Map[(Max[#] - Min[#]) &, Transpose[verts]]];
 
-render3d[mesh_] := 
+Clear[render3d]
+render3d[mesh_, opts:OptionsPattern[]] := 
  Module[{verts, faces, range, bdedges},
  	{verts, faces} = mesh;
  	range = getRange[verts];
@@ -136,14 +138,14 @@ render3d[mesh_] :=
    Lighting -> "Neutral", Boxed -> False]]
 
 (* render *)
-
-render[mesh_,title_:""] := 
+Clear[render];
+render[mesh_,opts:OptionsPattern[]] := 
 Module[{embedDim,graphics},
 	embedDim=Length[mesh[[1,1]]];
 	graphics=Switch[embedDim,
-		2, render2d[mesh],
-		3, render3d[mesh]];
-	Show[graphics,PlotLabel->title]
+		2, render2d[mesh,opts],
+		3, render3d[mesh,opts]];
+	Show[graphics,FilterRules[{opts},PlotLabel]]
 ]
 
 
