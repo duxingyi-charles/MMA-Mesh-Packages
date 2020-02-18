@@ -9,6 +9,9 @@ $solverExe::usage = "path to the PN solver executable file."
 
 $recordOptions::usage = "list of available record options."
 
+computeAlpha::usage = "computeAlpha[mesh,restMesh,alphaRatio,form] computes the value of 
+alpha given the input meshes, alphaRatio and energy form."
+
 liftedFormulation::usage = "liftedFormulation[(opts)] specifies options for the lifted energy.
 The options include alphaRatio, alpha and form. The option form can take value from harmonic 
 and tutte-uniform."
@@ -57,18 +60,10 @@ exportFormulationData[filename_, restM_, initM_, hdls_, form_,
  ]
 
 
-Clear[liftedFormulation]
-Options[liftedFormulation] = {"alphaRatio" -> 1.0, 
-   "alpha" -> Automatic, "form" -> "harmonic"};
-liftedFormulation[opts : OptionsPattern[]] :=
- Function[{mesh, restMesh, handles},
-  Module[{simplexSize, restMeasure, \[Alpha], filename},
-   (*compute alpha*)
-   simplexSize = Last[Dimensions[mesh[[2]]]];(*3:
-   tri mesh. 4:tet mesh*)
-   If[OptionValue["alpha"] === Automatic,
-    (*automatic alpha*)
-    Switch[OptionValue["form"],
+computeAlpha[mesh_,restMesh_,alphaRatio_,form_]:=
+Module[{simplexSize,restMeasure,\[Alpha]},
+   simplexSize = Last[Dimensions[mesh[[2]]]];(*3:tri mesh. 4:tet mesh*)
+   Switch[form,
      "harmonic",
      If[simplexSize == 3,
       restMeasure = Area[MeshToMeshRegion[restMesh]],
@@ -77,13 +72,24 @@ liftedFormulation[opts : OptionsPattern[]] :=
      If[simplexSize == 3,
       restMeasure = Length[restMesh[[2]]] \[Sqrt]3/4.0,
       restMeasure = Length[restMesh[[2]]] \[Sqrt]2/12.0]
-     ];
-    \[Alpha] = Total[NMeshAreas[mesh]]/restMeasure;
-    \[Alpha] *= OptionValue["alphaRatio"]; 
-    Echo[OptionValue["alphaRatio"], "alphaRatio "],
-    (*specified alpha*)
-    \[Alpha] = OptionValue["alpha"]
     ];
+
+    \[Alpha] = alphaRatio * Total[NMeshAreas[mesh]]/restMeasure
+]
+
+Clear[liftedFormulation]
+Options[liftedFormulation] = {"alphaRatio" -> 1.0, 
+   "alpha" -> Automatic, "form" -> "harmonic"};
+liftedFormulation[opts : OptionsPattern[]] :=
+ Function[{mesh, restMesh, handles},
+  Module[{\[Alpha], filename},
+   (*compute alpha*)
+   If[OptionValue["alpha"] === Automatic,
+    	\[Alpha] = computeAlpha[mesh,restMesh,OptionValue["alphaRatio"],OptionValue["form"]];
+    	Echo[OptionValue["alphaRatio"], "alphaRatio "],
+    	(*specified alpha*)
+    	\[Alpha] = OptionValue["alpha"]
+   ];
    Echo[Evaluate[\[Alpha]], "alpha "];
    (* write data file *)
    
