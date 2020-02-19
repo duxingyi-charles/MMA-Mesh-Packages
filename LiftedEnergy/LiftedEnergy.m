@@ -455,9 +455,16 @@ Module[{restD, V, F, nv, nf, vDim, freeI, targetDim, hFunc,
 
 
 getLiftedProjectedHessian[initMesh_,restMesh_,handles_,alpha_,form_,policy_:"Policy5"]:=
-Module[{getProjHess,hFunc},
-	getProjHess=ToExpression["getLiftedProjectedHessian"<>policy];
-	hFunc = getProjHess[initMesh,restMesh,handles,alpha,form]
+Module[{hFunc},
+	Switch[policy,
+		"Prev",
+		hFunc = getLiftedProjectedHessianPrev[initMesh,restMesh,handles,alpha,form],
+		"Policy1",
+		hFunc = getLiftedProjectedHessianPolicy1[initMesh,restMesh,handles,alpha,form],
+		"Policy5",
+		hFunc = getLiftedProjectedHessianPolicy5[initMesh,restMesh,handles,alpha,form]
+	];
+	hFunc	
 ]
 
 
