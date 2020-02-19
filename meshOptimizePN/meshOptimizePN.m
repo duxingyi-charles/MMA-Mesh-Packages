@@ -36,7 +36,7 @@ $tmpDataDir = ExpandFileName["~/tmp_Eigen_lifted"]
 $solverExe = 
   "/Users/charlesdu/Downloads/research/lifted-eigen/lifted_5"
   
-$recordOptions = {"vert", "energy", "minArea", "gradient", "searchDirection"}
+$recordOptions = {"vert", "energy", "minArea", "gradient", "searchDirection", "stepSize"}
 
 Clear[exportFormulationData]
 exportFormulationData[filename_, restM_, initM_, hdls_, form_, 
@@ -167,8 +167,7 @@ exportSolverOptions[filename_, opts : OptionsPattern[]] :=
 Clear[importExperimentResult]
 importExperimentResult[filename_] :=
  Module[{titleList, stream, lines, res, i, line, title, dims, data},
-  titleList = {"resV", "vert", "energy", "minArea", "gradient", 
-    "searchDirection"};
+  titleList = Prepend[$recordOptions,"resV"];
   If[FailureQ[stream = OpenRead[filename]], Return[$Failed]];
   lines = ReadList[stream, Word, RecordLists -> True];
   Close[stream];
