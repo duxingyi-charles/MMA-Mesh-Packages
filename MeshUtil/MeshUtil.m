@@ -52,7 +52,7 @@ MeshRegionToMesh[reg_]:={MeshCoordinates[reg],Flatten[List @@@ MeshCells[reg,Reg
 MeshBoundingBox::targ = "No points in mesh."
 MeshBoundingBox[mesh_]:=If[Length[mesh[[1]]]==0,
 	Message[MeshBoundingBox::targ];{Null,Null},
-	Transpose[CoordinateBounds[mesh[[1]]]]]
+	Transpose[CoordinateBounds[mesh[[1,Flatten[mesh[[2]]]]]]]]
 
 SimplexVolume::targ = "Embedding dimension is too high, `1` points in `2`-dimension space."
 SimplexVolume[pts_]:=Module[{geoDim,points},
