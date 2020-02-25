@@ -16,6 +16,8 @@ liftedFormulation::usage = "liftedFormulation[(opts)] specifies options for the 
 The options include alphaRatio, alpha and form. The option form can take value from harmonic 
 and tutte-uniform."
 
+importExperimentResult::usage = "importExperimentResult[filename] import exepriment results."
+
 mySolver::usage = "mySolver[(opts)] specifies options for PN solver.
 Please use Options[mySolver] to see the available options and their default values."
 
@@ -34,7 +36,7 @@ Begin["`Private`"] (* Begin Private Context *)
 $tmpDataDir = ExpandFileName["~/tmp_Eigen_lifted"]
 
 $solverExe = 
-  "/Users/charlesdu/Downloads/research/lifted-eigen/lifted_5"
+  "/Users/charlesdu/Downloads/research/lifted-eigen/bin/lifted_5"
   
 $recordOptions = {"vert", "energy", "minArea", "gradient", "searchDirection", "stepSize"}
 
