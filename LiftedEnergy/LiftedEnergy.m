@@ -4,7 +4,7 @@ BeginPackage["LiftedEnergy`", { "MeshUtil`"}]
 (* Exported symbols added here with SymbolName::usage *)
 
 getLiftedFunction::usage = "getLiftedFunction[initMesh,restMesh,handles,alpha,form] 
-returns {freeI,func}, where freeI is the indices of free vertices, and func is a function 
+returns func, where func is a function 
 to compute lifted energy by evaluating func[freeV]."
 
 getLiftedGrad::usage = "getLiftedGrad[initMesh,restMesh,handles,alpha,form] 
@@ -213,7 +213,7 @@ Module[{restD, V, F, freeI, targetDim, func},
    			Total[areaList]
    		];
    	(**)
- 	{freeI,func}
+ 	func
 ]
 
 
