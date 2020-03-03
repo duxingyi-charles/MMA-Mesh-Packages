@@ -86,10 +86,10 @@ liftedFormulation[opts : OptionsPattern[]] :=
    Echo[Evaluate[\[Alpha]], "alpha "];
    (* write data file *)
    
-   filename = FileNameJoin[{$tmpDataDir, "lifted_" <> DateString[]}];
+   filename = FileNameJoin[{$tmpDataDir, "lifted_" <> ToString[UnixTime[]]}];
    While[FileExistsQ[filename], 
     filename = 
-     FileNameJoin[{$tmpDataDir, "lifted_" <> DateString[]}]];
+     FileNameJoin[{$tmpDataDir, "lifted_" <> ToString[UnixTime[]]}]];
    exportFormulationData[filename, restMesh, mesh, handles, 
     OptionValue["form"], \[Alpha]];
    (**)
@@ -200,7 +200,7 @@ mySolver[opts : OptionsPattern[]] :=
    res = importExperimentResult[resFileName];
    (*delete tmp files*)
    
-   DeleteFile[{dataFileName, optFileName, resFileName}];
+	DeleteFile[{dataFileName, optFileName, resFileName}];
    (*return*)
    If[res === $Failed,
     $Failed,
