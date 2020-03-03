@@ -1,11 +1,7 @@
 (* Wolfram Language Package *)
 
-BeginPackage["meshOptimizePN`" , {"MeshUtil`"}]
+BeginPackage["meshOptimizePN`" , {"MeshUtil`", "meshOptimizePN`Path`"}]
 (* Exported symbols added here with SymbolName::usage *)  
-
-$tmpDataDir::usage = "directory to put temporary files."
-
-$solverExe::usage = "path to the PN solver executable file."
 
 $recordOptions::usage = "list of available record options."
 
@@ -32,11 +28,6 @@ Begin["`Private`"] (* Begin Private Context *)
 (*Print[$ContextPath]*)
 
 (* Formulation related *)
-
-$tmpDataDir = ExpandFileName["~/tmp_Eigen_lifted"]
-
-$solverExe = 
-  "/Users/charlesdu/Downloads/research/lifted-eigen/bin/lifted_5"
   
 $recordOptions = {"vert", "energy", "minArea", "gradient", "searchDirection", "stepSize"}
 
