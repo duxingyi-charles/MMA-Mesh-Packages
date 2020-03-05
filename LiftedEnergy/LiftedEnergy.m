@@ -31,8 +31,13 @@ Begin["`Private`"] (* Begin Private Context *)
 
 
 (* Heron's triangle area formula and its derivatives *)
-HeronTriArea[d1_, d2_, d3_] := 
-  0.25 Sqrt[(d1 + d2 + d3)^2 - 2 (d1^2 + d2^2 + d3^2)]
+(*HeronTriArea[d1_, d2_, d3_] := 
+  0.25 Sqrt[(d1 + d2 + d3)^2 - 2 (d1^2 + d2^2 + d3^2)]*)
+  
+HeronTriArea[d1_, d2_, d3_] := Module[{a,b,c},
+	{c,b,a} = Sqrt[Sort[{d1,d2,d3}]];
+	0.25 Sqrt[(a+(b+c))(c-(a-b))(c+(a-b))(a+(b-c))]
+]
 
 HeronTriAreaGrad[d1_, d2_, d3_] :=
  Module[{area},
