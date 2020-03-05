@@ -63,11 +63,11 @@ Module[{simplexSize,restMeasure,\[Alpha]},
       restMeasure = Volume[MeshToMeshRegion[restMesh]]],
      "tutte-uniform",
      If[simplexSize == 3,
-      restMeasure = Length[restMesh[[2]]] \[Sqrt]3/4.0,
-      restMeasure = Length[restMesh[[2]]] \[Sqrt]2/12.0]
+      restMeasure = Length[restMesh[[2]]] \[Sqrt]3/4,
+      restMeasure = Length[restMesh[[2]]] \[Sqrt]2/12]
     ];
 
-    \[Alpha] = alphaRatio * Total[NMeshAreas[mesh]]/restMeasure
+    \[Alpha] = alphaRatio * Total[MeshAreas[mesh]]/restMeasure
 ]
 
 Clear[liftedFormulation]
