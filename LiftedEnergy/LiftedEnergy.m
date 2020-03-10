@@ -90,9 +90,6 @@ liftedTriAreaGrad[{v1_, v2_, v3_}, {r1_, r2_, r3_}] :=
   d2 = e2.e2 + r2;
   d3 = e3.e3 + r3;
   gd = HeronTriAreaGrad[d1, d2, d3];
-  (*g1 = 2 (gd[[2]] (v1 - v3) + gd[[3]] (v1 - v2));
-  g2 = 2 (gd[[1]] (v2 - v3) + gd[[3]] (v2 - v1));
-  g3 = 2 (gd[[1]] (v3 - v2) + gd[[2]] (v3 - v1));*)
   g1 = 2 (gd[[3]] e3 - gd[[2]] e2);
   g2 = 2 (gd[[1]] e1 - gd[[3]] e3);
   g3 = 2 (gd[[2]] e2 - gd[[1]] e1);   
@@ -126,7 +123,7 @@ myInner[mat1_, mat2_] :=
   {p, q, vdim} = Dimensions[mat2];
   If[n != p, Return[$Failed]];
   
-  res = ConstantArray[0.0, {m, q, vdim, vdim}];
+  res = ConstantArray[0, {m, q, vdim, vdim}];
   Do[
    res[[i, j]] += TensorProduct[mat1[[i, k]], mat2[[k, j]]]
    , {i, m}, {j, q}, {k, n}];
@@ -156,7 +153,7 @@ liftedTriAreaHessian[{v1_, v2_, v3_}, {r1_, r2_, r3_}] :=
   dAdD = HeronTriAreaGrad[d1, d2, d3];
   hAhD = HeronTriAreaHessian[d1, d2, d3];
   
-  \[Theta] = ConstantArray[0.0, dimension];
+  \[Theta] = ConstantArray[0, dimension];
   dDdV = 2 {
      {\[Theta], v2 - v3, v3 - v2},
      {v1 - v3, \[Theta], v3 - v1},
@@ -201,7 +198,7 @@ computeSquaredEdgeLength[mesh_] :=
 getRestD[restMesh_,form_]:=
 Switch[form,
 	"harmonic",	computeSquaredEdgeLength[restMesh],
-	"tutte-uniform", ConstantArray[1.0, {Length[restMesh[[2]]], 3}]
+	"tutte-uniform", ConstantArray[1, {Length[restMesh[[2]]], 3}]
 ]
 
 getLiftedFunction[initMesh_,restMesh_,handles_,alpha_,form_] :=
@@ -240,7 +237,7 @@ Module[{restD, V, F, nv, nf, freeI, targetDim, gFunc},
      V[[freeI]] = freeV;
      Vlist = Map[V[[#]] &, F];
      gList = MapThread[liftedTriAreaGrad[#1, #2] &, {Vlist, restD}];
-     gV = ConstantArray[0.0, Dimensions[V]];
+     gV = ConstantArray[0, Dimensions[V]];
      Do[gV[[F[[i]]]] += gList[[i]], {i, nf}];
      gFreeV = gV[[freeI]];
      Flatten[gFreeV]
