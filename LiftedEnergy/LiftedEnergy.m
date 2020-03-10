@@ -36,7 +36,7 @@ Begin["`Private`"] (* Begin Private Context *)
   
 HeronTriArea[d1_, d2_, d3_] := Module[{a,b,c},
 	{c,b,a} = Sqrt[Sort[{d1,d2,d3}]];
-	0.25 Sqrt[(a+(b+c))(c-(a-b))(c+(a-b))(a+(b-c))]
+	Sqrt[(a+(b+c))(c-(a-b))(c+(a-b))(a+(b-c))] /4
 ]
 
 HeronTriAreaGrad[d1_, d2_, d3_] :=
@@ -90,9 +90,12 @@ liftedTriAreaGrad[{v1_, v2_, v3_}, {r1_, r2_, r3_}] :=
   d2 = e2.e2 + r2;
   d3 = e3.e3 + r3;
   gd = HeronTriAreaGrad[d1, d2, d3];
-  g1 = 2 (gd[[2]] (v1 - v3) + gd[[3]] (v1 - v2));
+  (*g1 = 2 (gd[[2]] (v1 - v3) + gd[[3]] (v1 - v2));
   g2 = 2 (gd[[1]] (v2 - v3) + gd[[3]] (v2 - v1));
-  g3 = 2 (gd[[1]] (v3 - v2) + gd[[2]] (v3 - v1));
+  g3 = 2 (gd[[1]] (v3 - v2) + gd[[2]] (v3 - v1));*)
+  g1 = 2 (gd[[3]] e3 - gd[[2]] e2);
+  g2 = 2 (gd[[1]] e1 - gd[[3]] e3);
+  g3 = 2 (gd[[2]] e2 - gd[[1]] e1);   
   {g1, g2, g3}
 ]
 
@@ -203,7 +206,7 @@ Switch[form,
 
 getLiftedFunction[initMesh_,restMesh_,handles_,alpha_,form_] :=
 Module[{restD, V, F, freeI, targetDim, func},
-	restD = getRestD[restMesh,form];
+	restD = getRestD[restMesh ,form];
  	restD *= alpha;
  
 	{V, F} = initMesh;
