@@ -10,6 +10,9 @@ specified by their indices)."
 getVertexComponents::usage = "getVertexComponents[mesh,verts] decomposes verts into a list of 
 connected components by their connectivity in mesh."
 
+findNeighborRegion::usage = "findNeighborRegion[mesh,vertIdList,k] gives a list of k-ring neighboring 
+regions around the given vertices. Each region is a list of cells (index into mesh)."
+
 findBadRegions::usage = "findBadRegions[mesh, k] gives a list of k-ring neighboring 
 regions around flipped cells. Each region is a list of cells (index into mesh)."
 
@@ -20,7 +23,7 @@ Begin["`Private`"] (* Begin Private Context *)
 bfs::usage = "bfs[nei,seeds,maxDepth] performs a bfs search starting from seeds 
 and returns all nodes whose depth is no larger than maxDepth on the search tree. 
 Node adjacency is specified by nei, where nei[[i]] is the list of neighbors of node i."
-bfs[nei_, seeds_, maxDepth_]:=
+bfs[nei_, seeds_, maxDepth_]:= 
 Module[{nv,vDepth,queue,top,
 	v,vdep},
 	nv = Length[nei];
@@ -95,21 +98,25 @@ Module[{nei},
 	getComponents[nei, vertIdList]
 ]
 
-findBadRegions[mesh_, k_]:=
-Module[{badTriIds,badVertIds,nei,badRegionVertIds,badComponents,
-	componentCells},
-	badTriIds = FindFlippedCells[mesh];
-	badVertIds = Union[Flatten[mesh[[2, badTriIds]]]];	
+findNeighborRegion[mesh_,vertIdList_,k_]:=
+Module[{nei, regionVertIds, componentVerts, componentCells},
 	(* get vertex components *)
 	nei = MeshVertVertNeighborList[mesh];
-	badRegionVertIds = bfs[nei,badVertIds,k];
-	badComponents = getComponents[nei,badRegionVertIds];
+	regionVertIds = bfs[nei,vertIdList,k];
+	componentVerts = getComponents[nei,regionVertIds];
 	(* get cell components *)
 	componentCells = Map[
    		Module[{component = #},
      		Select[mesh[[2]], SubsetQ[component, #] &]
      	] &,
-   	badComponents]
+   	componentVerts]
+]
+
+findBadRegions[mesh_, k_]:=
+Module[{badTriIds,badVertIds},
+	badTriIds = FindFlippedCells[mesh];
+	badVertIds = Union[Flatten[mesh[[2, badTriIds]]]];	
+	findNeighborRegion[mesh,badVertIds,k]
 ]
 
 
