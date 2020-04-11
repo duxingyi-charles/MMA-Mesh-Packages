@@ -6,6 +6,9 @@ BeginPackage["MeshIO`"]
 ExportMesh::usage = "ExportMesh[filename,mesh] export mesh to an OBJ format file named filename."
 ImportMesh::usage = "ImportMesh[filename] import mesh from an OBJ file named filename."
 
+ExportMeshWithUV::usage = "ExportMeshWithUV[filename,mesh,uvmesh] export mesh to an OBJ format with uv stored in vt."
+(*ImportMeshWithUV::usage = "ImportMeshWithUV[filename] reads an obj file and returns {mesh, uvmesh}"*)
+
 ExportOVM::usage = "ExportOVM[filename,mesh] export tet mesh to an OVM file named filename."
 ImportOVM::usage = "ImportOVM[filename] import tet mesh from an OVM file named filename."
 
@@ -50,6 +53,18 @@ ImportMesh[filename_,OptionsPattern[]]:=Module[{file,lines,vertices,faces,mesh},
 	If[OptionValue["reduceDimension"],mesh=ReduceIdenticalDimensions[mesh]];
 	mesh
 ]
+
+
+ExportMeshWithUV[filename_,mesh_,uvmesh_]:=Module[{vertices=mesh[[1]],faces=mesh[[2]],uv=uvmesh[[1]],data},
+	If[Length[mesh[[1,1]]]==2, vertices=ArrayPad[vertices,{{0,0},{0,1}},0]];
+	vertices=Map[Prepend[#,"v"]&,vertices];
+	uv=Map[Prepend[#,"vt"]&,uv];
+	faces=Map[ToString[#]<>"/"<>ToString[#]&,faces,{2}];
+	faces=Map[Prepend[#,"f"]&,faces];
+	data=Join[vertices,uv,faces];
+	Export[filename,data,"Table","FieldSeparators"->" "]	
+]
+
 
 
 ExportOVM[filename_,mesh_]:=Module[
