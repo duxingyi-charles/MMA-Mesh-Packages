@@ -29,7 +29,7 @@ Begin["`Private`"] (* Begin Private Context *)
 
 (* Formulation related *)
   
-$recordOptions = {"vert", "energy", "minArea", "gradient", "searchDirection", "stepSize"}
+$recordOptions = {"vert", "energy", "minArea", "gradient", "gNorm", "searchDirection", "searchNorm", "stepSize", "stepNorm"}
 
 Clear[exportFormulationData]
 exportFormulationData[filename_, restM_, initM_, hdls_, form_, 
