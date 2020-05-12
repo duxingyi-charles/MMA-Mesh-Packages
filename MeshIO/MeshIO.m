@@ -16,6 +16,9 @@ ImportMSH::usage = "ImportMSH[filename] import tet mesh from a MSH file named fi
 
 ImportVTK::usage = "ImportVTK[filename] import tet mesh from a VTK file named filename."
 
+ExportVTK::usage = "ExportVTK[filename,mesh(,header)] export tri/tet mesh to a VTK file named filename. 
+					You can use header (optional) to describe the mesh."
+
 Begin["`Private`"] (* Begin Private Context *) 
 
 ExportMesh[filename_,mesh_]:=Module[{vertices=mesh[[1]],faces=mesh[[2]],data},
@@ -210,6 +213,37 @@ tData=RotateLeft/@tData;
 {vData,tData}
 ]
 
+ExportVTK[filename_, mesh_, header_ : ""] :=
+    Module[ {verts, cells, nv, nc, simplexSize, cellType, data},
+        {verts, cells} = mesh;
+        {nv, nc} = Length /@ mesh;
+        If[ Length[verts[[1]]] == 2,
+            verts = ArrayPad[verts, {{0, 0}, {0, 1}}, 0]
+        ];
+        simplexSize = Length[cells[[1]]];
+        If[ simplexSize == 3,
+            cellType = 5,(*tri*)
+            cellType = 10(*tet*)
+            ];
+        cells = cells - 1;
+        cells = ArrayPad[cells, {{0, 0}, {1, 0}}, simplexSize];
+        data = Join[
+          {
+           StringSplit["# vtk DataFile Version 2.0", " "],
+           StringSplit[header, " "],
+           {"ASCII"},
+           {"DATASET", "UNSTRUCTURED_GRID"},
+           {"POINTS", nv, "double"}
+           },
+          verts,
+          {{"CELLS", nc, nc (1 + simplexSize)}},
+          cells,
+          {{"CELL_TYPES", nc}},
+          Table[cellType, nc]
+          ];
+        Export[filename, data, "Table", "FieldSeparators" -> " "]
+    ]; 
+   
 End[] (* End Private Context *)
 
 EndPackage[]
