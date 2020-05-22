@@ -6,7 +6,7 @@ BeginPackage["Render`", {"MeshUtil`"}]
 ShowMesh::usage = "ShowMesh[mesh,options] shows planar tri mesh."
 ShowMesh3D::usage = "ShowMesh3D[mesh, options] shows tet mesh and surface tri mesh."
 
-render::usage = "render[mesh,(title)] render triangle mesh with (optional) title."
+render::usage = "render[mesh,(options)] render triangle mesh with (optional) options."
 
 
 Begin["`Private`"] (* Begin Private Context *) 
