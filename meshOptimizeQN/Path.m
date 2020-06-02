@@ -13,7 +13,10 @@ Begin["`Private`"] (* Begin Private Context *)
 $tmpDataDir = ExpandFileName["~/tmp_nlopt_lifted"]
 
 
-$solverExe = "/Users/charlesdu/MEGAsync/lifted-nlopt/bin/nloptSolve_mac"
+(*$solverExe = "/Users/charlesdu/MEGAsync/lifted-nlopt/bin/nloptSolve_mac"
+*)
+$solverExe = "/Users/charlesdu/MEGAsync/lifted-nlopt/bin/findInjective_mac"
+
 
 
 End[] (* End Private Context *)
