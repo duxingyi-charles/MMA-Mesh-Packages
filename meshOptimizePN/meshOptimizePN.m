@@ -4,6 +4,7 @@ BeginPackage["meshOptimizePN`" , {"MeshUtil`", "meshOptimizePN`Path`"}]
 (* Exported symbols added here with SymbolName::usage *)  
 
 $recordOptions::usage = "list of available record options."
+$saveOptions::usage   = "list of available save options."
 
 computeAlpha::usage = "computeAlpha[mesh,restMesh,alphaRatio,form] computes the value of 
 alpha given the input meshes, alphaRatio and energy form."
@@ -30,6 +31,7 @@ Begin["`Private`"] (* Begin Private Context *)
 (* Formulation related *)
   
 $recordOptions = {"vert", "energy", "minArea", "gradient", "gNorm", "searchDirection", "searchNorm", "stepSize", "stepNorm"}
+$saveOptions   = {"vert"}
 
 Clear[exportFormulationData]
 exportFormulationData[filename_, restM_, initM_, hdls_, form_, 
@@ -105,10 +107,11 @@ Options[exportSolverOptions] = {
    "AccuracyGoal" -> Automatic, "PrecisionGoal" -> Automatic,
    "GradientGoal" -> Automatic,
    "Method" -> "Projected_Newton", "MaxIterations" -> 1000,
-   "stopCode" -> "none", "record" -> {}
+   "stopCode" -> "none", "record" -> {}, "save"->{}
    };
 exportSolverOptions[filename_, opts : OptionsPattern[]] :=
- Module[{a, p, ftolAbs, ftolRel, xtolAbs, xtolRel, gtol},
+ Module[{a, p, ftolAbs, ftolRel, xtolAbs, xtolRel, gtol, 
+ 	optEntries, recordEntries, saveEntries},
   (**)
   a = OptionValue["AccuracyGoal"];
   If[a === Automatic,
@@ -141,19 +144,21 @@ exportSolverOptions[filename_, opts : OptionsPattern[]] :=
     ]
    ];
   (* write options *)
-  Export[filename,
-   Join[{"ftol_abs", ftolAbs,
-     "ftol_rel", ftolRel,
-     "xtol_abs", xtolAbs,
-     "xtol_rel", xtolRel,
-     "gtol_abs", gtol,
-     "algorithm", OptionValue["Method"],
-     "maxeval", OptionValue["MaxIterations"],
-     "stopCode", OptionValue["stopCode"],
-     "record"},
-    Prepend[OptionValue["record"], Length[OptionValue["record"]]]
-    ],
-   "List"];
+  optEntries = {
+      "ftol_abs", ftolAbs,
+      "ftol_rel", ftolRel,
+      "xtol_abs", xtolAbs,
+      "xtol_rel", xtolRel,
+      "gtol_abs", gtol,
+      "algorithm", OptionValue["Method"],
+      "maxeval", OptionValue["MaxIterations"],
+      "stopCode", OptionValue["stopCode"]
+  };
+  recordEntries = #<>If[MemberQ[OptionValue["record"],#],"\t1","\t0"]&/@ $recordOptions;
+  saveEntries   = #<>If[MemberQ[OptionValue["save"],#],"\t1","\t0"]&/@ $saveOptions;
+  optEntries = Join[optEntries, {"record"}, recordEntries, {"save"}, saveEntries];
+  
+  Export[filename, optEntries, "List"];
 ]
 
 
