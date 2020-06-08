@@ -105,7 +105,7 @@ ShowMesh3D[mesh_,opts:OptionsPattern[]]:=Module[
 Clear[render2d];
 render2d[mesh_, opts:OptionsPattern[]] :=
   Show[
-   ShowMesh[mesh
+  ShowMesh[mesh
    	,FilterRules[{opts},Options[ShowMesh]]
     , "edgeColor" -> {
       Opacity[0.3, Black]
@@ -124,14 +124,16 @@ col = {184, 151, 128}/255.0;
 
 getRange[verts_] := Max[Map[(Max[#] - Min[#]) &, Transpose[verts]]];
 
+
 Clear[render3d]
+Options[render3d] = {"faceColor"->Apply[RGBColor,col]};
 render3d[mesh_, opts:OptionsPattern[]] := 
  Module[{verts, faces, range, bdedges},
  	{verts, faces} = mesh;
  	range = getRange[verts];
  	bdedges = extractBoundary2d[mesh];
   Graphics3D[{{Specularity[GrayLevel[0.6], 100], Opacity[.8], 
-     EdgeForm[{Black}], Apply[RGBColor, col], 
+     EdgeForm[(*{Black}*)], (*Apply[RGBColor, col]*) OptionValue["faceColor"], 
      Map[Polygon[verts[[#]]] &, faces]},
     {Specularity[White, 100], GrayLevel[.3], 
      Map[Tube[verts[[#]], range*0.008] &, bdedges]}},
