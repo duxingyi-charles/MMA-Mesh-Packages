@@ -33,9 +33,9 @@ Begin["`Private`"] (* Begin Private Context *)
 $recordOptions = {"vert", "energy", "minArea", "gradient", "gNorm", "searchDirection", "searchNorm", "stepSize", "stepNorm"}
 $saveOptions   = {"vert"}
 
-Clear[exportFormulationData]
-exportFormulationData[filename_, restM_, initM_, hdls_, form_, 
-  alpha_] :=
+ 
+Clear[exportFormulationData];
+exportFormulationData[filename_, restM_, initM_, hdls_] :=
  Module[{restV, F, initV, data},
   restV = N[restM[[1]]];
   F = Round[restM[[2]]];
@@ -48,11 +48,10 @@ exportFormulationData[filename_, restM_, initM_, hdls_, form_,
     {Dimensions[F]},
     F - 1,
     {Length[hdls]},
-    hdls - 1,
-    {form, N[alpha]}
+    hdls - 1
     ];
   Export[filename, data, "Table"]
- ]
+]
 
 
 computeAlpha[mesh_,restMesh_,alphaRatio_,form_]:=
@@ -72,28 +71,17 @@ Module[{simplexSize,restMeasure,\[Alpha]},
     \[Alpha] = alphaRatio * Total[MeshAreas[mesh]]/restMeasure
 ]
 
+ 
 Clear[liftedFormulation]
-Options[liftedFormulation] = {"alphaRatio" -> 1.0, 
-   "alpha" -> Automatic, "form" -> "harmonic"};
-liftedFormulation[opts : OptionsPattern[]] :=
+liftedFormulation =
  Function[{mesh, restMesh, handles},
-  Module[{\[Alpha], filename},
-   (*compute alpha*)
-   If[OptionValue["alpha"] === Automatic,
-    	\[Alpha] = computeAlpha[mesh,restMesh,OptionValue["alphaRatio"],OptionValue["form"]];
-    	Echo[OptionValue["alphaRatio"], "alphaRatio "],
-    	(*specified alpha*)
-    	\[Alpha] = OptionValue["alpha"]
-   ];
-   Echo[Evaluate[\[Alpha]], "alpha "];
+  Module[{filename},
    (* write data file *)
-   
    filename = FileNameJoin[{$tmpDataDir, "lifted_" <> ToString[UnixTime[]]}];
    While[FileExistsQ[filename], 
     filename = 
      FileNameJoin[{$tmpDataDir, "lifted_" <> ToString[UnixTime[]]}]];
-   exportFormulationData[filename, restMesh, mesh, handles, 
-    OptionValue["form"], \[Alpha]];
+   exportFormulationData[filename, restMesh, mesh, handles];
    (**)
    filename
    ]
@@ -104,6 +92,7 @@ liftedFormulation[opts : OptionsPattern[]] :=
 
 Clear[exportSolverOptions]
 Options[exportSolverOptions] = {
+	"alphaRatio" -> 1.0, "alpha" -> Automatic, "form" -> "harmonic",
    "AccuracyGoal" -> Automatic, "PrecisionGoal" -> Automatic,
    "GradientGoal" -> Automatic,
    "Method" -> "Projected_Newton", "MaxIterations" -> 1000,
@@ -145,6 +134,9 @@ exportSolverOptions[filename_, opts : OptionsPattern[]] :=
    ];
   (* write options *)
   optEntries = {
+  	  "form", OptionValue["form"],
+  	  "alphaRatio", OptionValue["alphaRatio"],
+  	  "alpha", If[NumericQ[OptionValue["alpha"]],OptionValue["alpha"],-1],
       "ftol_abs", ftolAbs,
       "ftol_rel", ftolRel,
       "xtol_abs", xtolAbs,
