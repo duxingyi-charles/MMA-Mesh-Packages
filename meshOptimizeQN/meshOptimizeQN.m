@@ -31,28 +31,7 @@ Begin["`Private`"] (* Begin Private Context *)
   
 $recordOptions = {"vert", "energy", "minArea"}
 
-(*Clear[exportFormulationData];
-exportFormulationData[filename_, restM_, initM_, hdls_, form_, 
-  alpha_] :=
- Module[{restV, F, initV, data},
-  restV = N[restM[[1]]];
-  F = Round[restM[[2]]];
-  initV = N[initM[[1]]];
-  data = Join[
-    {Dimensions[restV]},
-    restV,
-    {Dimensions[initV]},
-    initV,
-    {Dimensions[F]},
-    F - 1,
-    {Length[hdls]},
-    hdls - 1,
-    {form, N[alpha]}
-    ];
-  Export[filename, data, "Table"]
-]*)
-
-(*remove form and alpha*)
+(**)
 Clear[exportFormulationData];
 exportFormulationData[filename_, restM_, initM_, hdls_] :=
  Module[{restV, F, initV, data},
@@ -116,7 +95,7 @@ Options[exportSolverOptions] = {
    "stopCode" -> "none", "record" -> {}
    };
 exportSolverOptions[filename_, opts : OptionsPattern[]] :=
- Module[{a, p, ftolAbs, ftolRel, xtolAbs, xtolRel},
+ Module[{a, p, ftolAbs, ftolRel, xtolAbs, xtolRel, optEntries, recordEntries},
   (**)
   a = OptionValue["AccuracyGoal"];
   If[a === Automatic,
@@ -141,7 +120,24 @@ exportSolverOptions[filename_, opts : OptionsPattern[]] :=
   xtolRel = p;
  
   (* write options *)
-  Export[filename,
+  optEntries = {
+  	  "form", OptionValue["form"],
+  	  "alphaRatio", OptionValue["alphaRatio"],
+  	  "alpha", If[NumericQ[OptionValue["alpha"]],OptionValue["alpha"],-1],
+      "ftol_abs", ftolAbs,
+      "ftol_rel", ftolRel,
+      "xtol_abs", xtolAbs,
+      "xtol_rel", xtolRel,
+      "algorithm", OptionValue["Method"],
+      "maxeval", OptionValue["MaxIterations"],
+      "stopCode", OptionValue["stopCode"]
+  };
+  recordEntries = #<>If[MemberQ[OptionValue["record"],#],"\t1","\t0"]&/@ $recordOptions;
+  optEntries = Join[optEntries, {"record"}, recordEntries];
+  
+  Export[filename, optEntries, "List"];
+  
+  (*Export[filename,
   Join[{
   	"form",OptionValue["form"],
   	"alphaRatio",OptionValue["alphaRatio"],
@@ -156,7 +152,7 @@ exportSolverOptions[filename_, opts : OptionsPattern[]] :=
     "record"},
    Prepend[OptionValue["record"], Length[OptionValue["record"]]]
    ],
-  "List"];
+  "List"];*)
 ]
 
 
