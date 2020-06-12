@@ -90,32 +90,6 @@ Module[{simplexSize,restMeasure,\[Alpha]},
     \[Alpha] = alphaRatio * Total[MeshAreas[mesh]]/restMeasure
 ]
 
-(*Clear[liftedFormulation]
-Options[liftedFormulation] = {"alphaRatio" -> 1.0, 
-   "alpha" -> Automatic, "form" -> "harmonic"};
-liftedFormulation[opts : OptionsPattern[]] :=
- Function[{mesh, restMesh, handles},
-  Module[{\[Alpha], filename},
-   (*compute alpha*)
-   If[OptionValue["alpha"] === Automatic,
-    	\[Alpha] = computeAlpha[mesh,restMesh,OptionValue["alphaRatio"],OptionValue["form"]];
-    	Echo[OptionValue["alphaRatio"], "alphaRatio "],
-    	(*specified alpha*)
-    	\[Alpha] = OptionValue["alpha"]
-   ];
-   Echo[Evaluate[\[Alpha]], "alpha "];
-   (* write data file *)
-   
-   filename = FileNameJoin[{$tmpDataDir, "lifted_" <> ToString[UnixTime[]]}];
-   While[FileExistsQ[filename], 
-    filename = 
-     FileNameJoin[{$tmpDataDir, "lifted_" <> ToString[UnixTime[]]}]];
-   exportFormulationData[filename, restMesh, mesh, handles, 
-    OptionValue["form"], \[Alpha]];
-   (**)
-   filename
-   ]
- ]*)
  
  Clear[liftedFormulation]
 liftedFormulation =
@@ -133,77 +107,6 @@ liftedFormulation =
  ]
  
 (* Solver related *) 
-
-
-(*Clear[exportSolverOptions]
-Options[exportSolverOptions] = {
-   "AccuracyGoal" -> Automatic, "PrecisionGoal" -> Automatic,
-   "Method" -> "LBFGS", "MaxIterations" -> 1000,
-   "stopCode" -> "none", "record" -> {}
-   };
-exportSolverOptions[filename_, opts : OptionsPattern[]] :=
- Module[{a, p, ftolAbs, ftolRel, xtolAbs, xtolRel},
-  (**)
-  a = OptionValue["AccuracyGoal"];
-  If[a === Automatic,
-   a = 1.0*^-8,
-   If[a === Infinity,
-    a = -1,
-    a = Power[10.0, -a]
-    ]
-   ];
-  ftolAbs = a;
-  xtolAbs = a;
-  (**)
-  p = OptionValue["PrecisionGoal"];
-  If[p === Automatic,
-   p = 1.0*^-8,
-   If[p === Infinity,
-    p = -1,
-    p = Power[10.0, -p]
-    ]
-   ];
-  ftolRel = p;
-  xtolRel = p;
- 
-  (* write options *)
-  Export[filename,
-  Join[{"ftol_abs", ftolAbs,
-    "ftol_rel", ftolRel,
-    "xtol_abs", xtolAbs,
-    "xtol_rel", xtolRel,
-    "algorithm", OptionValue["Method"],
-    "maxeval", OptionValue["MaxIterations"],
-    "stopCode", OptionValue["stopCode"],
-    "record"},
-   Prepend[OptionValue["record"], Length[OptionValue["record"]]]
-   ],
-  "List"];
-]
-
-
-Clear[importExperimentResult]
-importExperimentResult[filename_] :=
- Module[{titleList, stream, lines, res, i, line, title, dims, data},
-  titleList = Prepend[$recordOptions,"resV"];
-  If[FailureQ[stream = OpenRead[filename]], Return[$Failed]];
-  lines = ReadList[stream, Word, RecordLists -> True];
-  Close[stream];
-  res = <||>;
-  i = 1;
-  While[i <= Length[lines],
-   line = lines[[i]]; i += 1;
-   If[Length[line] > 1 && MemberQ[titleList, line[[1]]],
-    title = line // First;
-    dims = line // Rest // ToExpression;
-    line = lines[[i]]; i += 1;
-    data = ImportString[StringRiffle[line], "Table"];
-    data = ArrayReshape[data, dims];
-    AssociateTo[res, title -> data]
-    ]
-   ];
-  res
-]*)
 
 Clear[exportSolverOptions]
 Options[exportSolverOptions] = {
