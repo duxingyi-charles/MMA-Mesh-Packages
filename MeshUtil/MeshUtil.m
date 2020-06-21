@@ -36,6 +36,11 @@ for given tet mesh."
 
 getBoundaryVts::usage = "getBoundaryVts[mesh] extracts boundary vertices of the given mesh. "
 
+extractBoundaryChains::usage = "extractBoundaryChains[mesh] extracts boundary chains for given triangle mesh.
+Each chain is a list of ordered vertex indices on one connected component of the boundary. The vertices are ordered
+such that the interior of the mesh lies on the left the the chain."
+
+
 (* mesh consolidation *)
 RemoveIsolateVts::usage = "RemoveIsolatedVts[mesh] returns a new mesh 
 where vertices not incident to any triangles are removed."
@@ -161,7 +166,37 @@ getBoundaryVts[mesh_] :=
   If[Length[mesh[[1]][[1]]] == 2, extractBoundary2d, 
       extractBoundary3d][mesh] // Flatten // Union;
 
-
+extractBoundaryChains[mesh_]:= Module[{faces=mesh[[2]], edges, bndryEdges, bndryEdgeAssoc,
+	 bndryVerts, visited, chains},
+	 (* get boundary halfedges *)
+	edges = Partition[#[[{1,2,2,3,3,1}]],2]& /@ faces;
+	edges = Flatten[edges,1];
+	bndryEdges = Select[Tally[edges, #1 == #2 || #1 == Reverse[#2] &], #[[2]] == 1 &][[All, 1]];
+	bndryEdgeAssoc = AssociationThread[bndryEdges[[All,1]],bndryEdges[[All,2]]];
+	
+	(* trace boundary chains *)
+	bndryVerts = Union[Flatten[bndryEdges]];
+	visited[_] = False;
+	chains = {};
+	Scan[
+		Module[{v = #, v0, chain},
+			If[! visited[v],
+				v0 = v;
+				chain = {v};
+				visited[v] = True;
+				v = bndryEdgeAssoc[v];
+				While[v != v0,
+					visited[v] = True;
+					AppendTo[chain, v];
+					v = bndryEdgeAssoc[v]
+				];
+				AppendTo[chains, chain];
+			]
+		] &
+	, bndryVerts];
+	(**)
+	chains
+]
 
 (* mesh consolidation *)
 
