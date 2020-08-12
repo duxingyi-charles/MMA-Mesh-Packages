@@ -166,12 +166,21 @@ getBoundaryVts[mesh_] :=
   If[Length[mesh[[1]][[1]]] == 2, extractBoundary2d, 
       extractBoundary3d][mesh] // Flatten // Union;
 
-extractBoundaryChains[mesh_]:= Module[{faces=mesh[[2]], edges, bndryEdges, bndryEdgeAssoc,
+extractBoundaryChains[mesh_]:= Module[{faces=mesh[[2]], edges, edgeCount, bndryEdges, bndryEdgeAssoc,
 	 bndryVerts, visited, chains},
 	 (* get boundary halfedges *)
 	edges = Partition[#[[{1,2,2,3,3,1}]],2]& /@ faces;
 	edges = Flatten[edges,1];
-	bndryEdges = Select[Tally[edges, #1 == #2 || #1 == Reverse[#2] &], #[[2]] == 1 &][[All, 1]];
+	edgeCount = <||>;
+	Scan[
+		If[KeyExistsQ[edgeCount, #],
+			edgeCount[#] += 1;
+			edgeCount[Reverse[#]] += 0.6,
+			edgeCount[#] = 1;
+			edgeCount[Reverse[#]] = 0.6
+		] &
+	, edges];
+	bndryEdges = Select[edgeCount, # == 1 &] // Keys;
 	bndryEdgeAssoc = AssociationThread[bndryEdges[[All,1]],bndryEdges[[All,2]]];
 	
 	(* trace boundary chains *)
@@ -182,14 +191,14 @@ extractBoundaryChains[mesh_]:= Module[{faces=mesh[[2]], edges, bndryEdges, bndry
 		Module[{v = #, v0, chain},
 			If[! visited[v],
 				v0 = v;
-				chain = {v};
-				visited[v] = True;
-				v = bndryEdgeAssoc[v];
-				While[v != v0,
+				chain = Reap[
+					Sow[v];
 					visited[v] = True;
-					AppendTo[chain, v];
-					v = bndryEdgeAssoc[v]
-				];
+					v = bndryEdgeAssoc[v];
+					While[v != v0, visited[v] = True;
+						Sow[v];
+						v = bndryEdgeAssoc[v]];
+				][[2, 1]];
 				AppendTo[chains, chain];
 			]
 		] &
