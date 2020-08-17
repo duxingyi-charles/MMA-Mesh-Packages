@@ -21,7 +21,7 @@ Options[ShowMesh]={"edgeColor"->Black,
 	"showFlowVector"->False,"flowVectorColor"->Blue,"flowVectorScale"->0.5,
 	"highlightTriangleIds"->{},"highlightTriangleColor"->Lighter[Blue],
 	"highlightVertexIds"->{},"highlightPointSize"->0.025,"highlightVertexColor"->Blue,
-	"PlotRange"->All,"ImageSize"->Automatic}
+	"PlotRange"->All,"ImageSize"->Automatic,"Axes"->False}
 
 ShowMesh[mesh_,opts:OptionsPattern[]]:=Module[
 	{vertices=mesh[[1]],faces=mesh[[2]],badTriangleIds,badTriangles,badVertexIds,flowVectors,highlightVertColorList},
@@ -74,7 +74,7 @@ Options[ShowMesh3D]={"edgeColor"->Black,"edgeOpacity"->0.1,"tetOpacity"->0.1,"ba
 	"handleVertexIds"->{},"showHandle"-> True,"handleColor"->Green,"handlePointSize"->0.01,
 	"showBad"->False,"badColor"->Red,"badPointSize"->0.005,
 	"highlightTriangleIds"->{},"highlightColor"->Lighter[Blue],
-	"PlotRange"->All,"ImageSize"->Automatic}
+	"PlotRange"->All,"ImageSize"->Automatic,"Axes"->False}
 	
 ShowMesh3D[mesh_,opts:OptionsPattern[]]:=Module[
 	{vertices=mesh[[1]],cells=mesh[[2]],badCellIds,badVertexIds},
