@@ -22,6 +22,18 @@ the numerical mesh."
 FindFlippedCells::usage = "FindFlippedCells[mesh] gives a list of indices of cells of the mesh 
 whose volume is non-posivite."
 
+(* angle related *)
+
+SignedAngle::usage = "SignedAngle[u,v] gives the signed angle of the rotation from 2D vector u to 2D vector v."
+
+getTriSignedAngles::usage = "getTriSignedAngles[{p1,p2,p3}] gives the signed angles at 3 vertices of 2D triangle p1p2p3."
+
+getVertexWindings::usage = "getVertexWindings[mesh] gives a list of total signed angle (in radians) at each vertex."
+
+getWindedVts::usage = "getWindedVts[mesh] gives {list of winded interior vertices, list of winded boundary vertices}.
+An interior vertex is winded if the total signed angle around it is not 2pi. 
+A boundary vertex is winded if the total signed angle around it is not in [0,2pi]."
+
 (* connectivity and topology *)
 MeshVertVertNeighborList::usage = "MeshVertVertNeighborList[mesh] returns a list of adjacent 
 vertex Ids for each vertex in the mesh."
@@ -103,6 +115,36 @@ NMeshAreas[mesh_]:=Module[{pts,cells,cellPts,ndim,func},
 
 FindFlippedCells[mesh_]:=Pick[Range[Length[mesh[[2]]]],NonPositive[MeshAreas[mesh]]]
 
+(* angle related *)
+SignedAngle[u_, v_] := Module[{uvCos, uvSin},
+  uvCos = u.v;
+  uvSin = u[[1]] v[[2]] - u[[2]] v[[1]];
+  ArcTan[uvCos, uvSin]
+  ]
+
+getTriSignedAngles[{p1_, p2_, p3_}] := 
+ SignedAngle @@@ {{p2 - p1, p3 - p1}, {p3 - p2, p1 - p2}, {p1 - p3, p2 - p3}}
+
+getVertexWindings[mesh_] := 
+ Module[{vert, faces, vlist, angleList, windingList},
+  {vert, faces} = mesh;
+  vlist = vert[[#]] & /@ faces;
+  angleList = getTriSignedAngles /@ vlist;
+  windingList = ConstantArray[0, Length[vert]];
+  MapThread[windingList[[#1]] += #2 &, {faces, angleList}];
+  (**)
+  windingList
+  ]
+  
+getWindedVts[mesh_] := Module[{windings, bndryVert, interiorVert},
+  windings = getVertexWindings[mesh];
+  bndryVert = getBoundaryVts[mesh] // Round;
+  interiorVert = Complement[Range[Length[mesh[[1]]]], bndryVert];
+  (* {interior winded vert, boundary winded vert} *)
+  {Select[interiorVert, 
+    Abs[windings[[#]] - 2 Pi] > 1.0*^-8 &],
+   Select[bndryVert, (windings[[#]] > 2 Pi || windings[[#]] < 0) &]}
+  ]
 
 (* connectivity and topology *)
 
