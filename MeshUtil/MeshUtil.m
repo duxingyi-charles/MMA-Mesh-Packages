@@ -54,7 +54,7 @@ such that the interior of the mesh lies on the left the the chain."
 
 
 (* mesh consolidation *)
-RemoveIsolateVts::usage = "RemoveIsolatedVts[mesh] returns a new mesh 
+RemoveIsolatedVts::usage = "RemoveIsolatedVts[mesh] returns a new mesh 
 where vertices not incident to any triangles are removed."
 
 Begin["`Private`"] (* Begin Private Context *) 
