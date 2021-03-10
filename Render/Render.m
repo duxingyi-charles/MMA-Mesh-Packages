@@ -80,7 +80,7 @@ ShowMesh3D[mesh_,opts:OptionsPattern[]]:=Module[
 	{vertices=mesh[[1]],cells=mesh[[2]],badCellIds,badVertexIds},
 	(*init*)
 	If[OptionValue["showBad"],
-		badCellIds=FindBadTriangles[mesh];
+		badCellIds=FindFlippedCells[mesh];
 		badVertexIds=cells[[badCellIds]]//Flatten//DeleteDuplicates];	
 	(*graphics*)
 	Graphics3D[{EdgeForm[{Opacity[OptionValue["edgeOpacity"]],OptionValue["edgeColor"]}],
