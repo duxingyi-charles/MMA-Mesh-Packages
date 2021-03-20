@@ -52,6 +52,8 @@ extractBoundaryChains::usage = "extractBoundaryChains[mesh] extracts boundary ch
 Each chain is a list of ordered vertex indices on one connected component of the boundary. The vertices are ordered
 such that the interior of the mesh lies on the left the the chain."
 
+getOneRingCellList::usage = "getOneRingFaceList[mesh] returns a list of incident cell Ids for each vertex in the mesh."
+
 
 (* mesh consolidation *)
 RemoveIsolatedVts::usage = "RemoveIsolatedVts[mesh] returns a new mesh 
@@ -248,6 +250,16 @@ extractBoundaryChains[mesh_]:= Module[{faces=mesh[[2]], edges, edgeCount, bndryE
 	(**)
 	chains
 ]
+
+getOneRingCellList[mesh_] :=
+    Module[ {verts, cells, oneRingCells},
+        {verts, cells} = mesh;
+        oneRingCells = ConstantArray[{}, Length[verts]];
+        Do[
+            Scan[AppendTo[oneRingCells[[#]],fid]&,cells[[fid]]]
+         , {fid, Length[cells]}];
+        oneRingCells
+    ]
 
 (* mesh consolidation *)
 
