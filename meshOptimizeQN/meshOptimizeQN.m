@@ -136,23 +136,6 @@ exportSolverOptions[filename_, opts : OptionsPattern[]] :=
   optEntries = Join[optEntries, {"record"}, recordEntries];
   
   Export[filename, optEntries, "List"];
-  
-  (*Export[filename,
-  Join[{
-  	"form",OptionValue["form"],
-  	"alphaRatio",OptionValue["alphaRatio"],
-  	"alpha",If[NumericQ[OptionValue["alpha"]],OptionValue["alpha"],-1],
-  	"ftol_abs", ftolAbs,
-    "ftol_rel", ftolRel,
-    "xtol_abs", xtolAbs,
-    "xtol_rel", xtolRel,
-    "algorithm", OptionValue["Method"],
-    "maxeval", OptionValue["MaxIterations"],
-    "stopCode", OptionValue["stopCode"],
-    "record"},
-   Prepend[OptionValue["record"], Length[OptionValue["record"]]]
-   ],
-  "List"];*)
 ]
 
 
