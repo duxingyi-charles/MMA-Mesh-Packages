@@ -144,7 +144,7 @@ getWindedVts[mesh_] := Module[{windings, bndryVert, interiorVert},
   interiorVert = Complement[Range[Length[mesh[[1]]]], bndryVert];
   (* {interior winded vert, boundary winded vert} *)
   {Select[interiorVert, 
-    Abs[windings[[#]] - 2 Pi] > 1.0*^-8 &],
+  	Round[windings[[#]]/(2*Pi)]!=1&],
    Select[bndryVert, (windings[[#]] > 2 Pi || windings[[#]] < 0) &]}
   ]
 
