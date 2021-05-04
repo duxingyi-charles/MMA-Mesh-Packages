@@ -1,1 +1,5 @@
-/.project
+*.project
+*.metadata
+*.nb
+.idea
+.DS_Store
