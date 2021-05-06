@@ -121,7 +121,9 @@ FindFlippedCells[mesh_]:=Pick[Range[Length[mesh[[2]]]],NonPositive[MeshAreas[mes
 SignedAngle[u_, v_] := Module[{uvCos, uvSin},
   uvCos = u.v;
   uvSin = u[[1]] v[[2]] - u[[2]] v[[1]];
+  If[uvCos==uvSin==0,0,
   ArcTan[uvCos, uvSin]
+  ]
   ]
 
 getTriSignedAngles[{p1_, p2_, p3_}] := 
