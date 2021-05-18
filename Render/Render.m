@@ -54,14 +54,14 @@ ShowMesh[mesh_,opts:OptionsPattern[]]:=Module[
 			{Opacity[0.5],OptionValue["highlightTriangleColor"],Map[Triangle[vertices[[#]]]&,faces[[OptionValue["highlightTriangleIds"]]]]}],
 		(*bad vertices*)
 		If[OptionValue["showBadVertex"],{PointSize[OptionValue["badPointSize"]],OptionValue["badColor"],Point[vertices[[badVertexIds]]]}],
-		(*handle vertices*)
-		If[OptionValue["showHandle"]&&Length[OptionValue["handleVertexIds"]]>0,
-			{PointSize[OptionValue["handlePointSize"]],OptionValue["handleColor"],Point[mesh[[1,OptionValue["handleVertexIds"]]]]}],
 		(*highlight vertices*)
 		If[Length[OptionValue["highlightVertexIds"]]>0,
 			MapThread[{PointSize[OptionValue["highlightPointSize"]],#2,Point[#1]}&,
 			{mesh[[1,OptionValue["highlightVertexIds"]]],highlightVertColorList}]
 		],
+		(*handle vertices*)
+		If[OptionValue["showHandle"]&&Length[OptionValue["handleVertexIds"]]>0,
+			{PointSize[OptionValue["handlePointSize"]],OptionValue["handleColor"],Point[mesh[[1,OptionValue["handleVertexIds"]]]]}],
 		(*flow vectors*)
 		If[OptionValue["showFlowVector"],
 			{OptionValue["flowVectorColor"],Map[Arrow[{vertices[[#]],vertices[[#]]+OptionValue["flowVectorScale"]*flowVectors[[#]]}]&,badVertexIds]}]
