@@ -15,7 +15,7 @@ Begin["`Private`"] (* Begin Private Context *)
 
 (* show mesh *)
 (*visualization*)
-Options[ShowMesh]={"edgeColor"->Black,
+Options[ShowMesh]={"edgeColor"->Black,"triangleStyle"->Opacity[0.],
 	"handleVertexIds"->{},"showHandle"-> True,"handleColor"->Green,"handlePointSize"->0.02,
 	"showBad"->True,"badColor"->Red,"badPointSize"->0.03,"showBadVertex"->False,
 	"showFlowVector"->False,"flowVectorColor"->Blue,"flowVectorScale"->0.5,
@@ -46,7 +46,7 @@ ShowMesh[mesh_,opts:OptionsPattern[]]:=Module[
 	(*graphics*)
 	Graphics[{EdgeForm[OptionValue["edgeColor"]],
 		(*triangles*)
-		{Opacity[0.],Map[Triangle[vertices[[#]]]&,faces[[Range[Length[faces]]]]]},
+		{OptionValue["triangleStyle"],Map[Triangle[vertices[[#]]]&,faces[[Range[Length[faces]]]]]},
 		(*bad triangles*)
 		If[OptionValue["showBad"],{Opacity[0.5],OptionValue["badColor"],EdgeForm[Opacity[1.0,OptionValue["badColor"]]],Map[Triangle[vertices[[#]]]&,faces[[badTriangleIds]]]}], 
 		(*highlight triangles*)
