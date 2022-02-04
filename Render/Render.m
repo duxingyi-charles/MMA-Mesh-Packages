@@ -17,6 +17,7 @@ Begin["`Private`"] (* Begin Private Context *)
 (*visualization*)
 Options[ShowMesh]={"edgeColor"->Black,"triangleStyle"->Opacity[0.],
 	"handleVertexIds"->{},"showHandle"-> True,"handleColor"->Green,"handlePointSize"->0.02,
+	"handleColors"->{Green},
 	"showBad"->True,"badColor"->Red,"badPointSize"->0.03,"showBadVertex"->False,
 	"showFlowVector"->False,"flowVectorColor"->Blue,"flowVectorScale"->0.5,
 	"highlightTriangleIds"->{},"highlightTriangleColor"->Lighter[Blue],
