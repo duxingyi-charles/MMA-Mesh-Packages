@@ -62,7 +62,12 @@ ShowMesh[mesh_,opts:OptionsPattern[]]:=Module[
 		],
 		(*handle vertices*)
 		If[OptionValue["showHandle"]&&Length[OptionValue["handleVertexIds"]]>0,
-			{PointSize[OptionValue["handlePointSize"]],OptionValue["handleColor"],Point[mesh[[1,OptionValue["handleVertexIds"]]]]}],
+			If[Length[OptionValue["handleColors"]]==Length[OptionValue["handleVertexIds"]],
+				{PointSize[OptionValue["handlePointSize"]],
+					 MapThread[{#1, Point[#2]}&, {OptionValue["handleColors"], mesh[[1, OptionValue["handleVertexIds"] ]] }]},
+			{PointSize[OptionValue["handlePointSize"]],OptionValue["handleColor"],Point[mesh[[1,OptionValue["handleVertexIds"]]]]}
+			]
+			],
 		(*flow vectors*)
 		If[OptionValue["showFlowVector"],
 			{OptionValue["flowVectorColor"],Map[Arrow[{vertices[[#]],vertices[[#]]+OptionValue["flowVectorScale"]*flowVectors[[#]]}]&,badVertexIds]}]
