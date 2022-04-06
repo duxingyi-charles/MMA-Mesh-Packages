@@ -1,3 +1,5 @@
+(* ::Package:: *)
+
 (* Wolfram Language Package *)
 
 BeginPackage["MeshUtil`"]
@@ -74,19 +76,25 @@ MeshBoundingBox[mesh_]:=If[Length[mesh[[1]]]==0,
 	Transpose[CoordinateBounds[mesh[[1,Flatten[mesh[[2]]]]]]]]
 
 SimplexVolume::targ = "Embedding dimension is too high, `1` points in `2`-dimension space."
-SimplexVolume[pts_]:=Module[{geoDim,points},
+SimplexVolume[pts_]:=Module[{geoDim},
 	If[Length[pts]<2,Return[0.],geoDim=Length[pts[[1]]]];
-	If[geoDim>Length[pts]-1,Message[SimplexVolume::targ,Length[pts],geoDim];Return[$Failed]];
-	points = ArrayPad[pts,{{0,0},{0,Length[pts]-geoDim}},1.];
-	Det[points]/(Length[pts]-1)!
+	If[geoDim!=Length[pts]-1,Message[SimplexVolume::targ,Length[pts],geoDim];Return[$Failed]];
+	If[geoDim==2,
+	(*triangle*)
+	Det[{pts[[2]]-pts[[1]],pts[[3]]-pts[[1]]}]/2,
+	(*tetrahedron*)
+	Det[{pts[[2]]-pts[[1]],pts[[3]]-pts[[1]],pts[[4]]-pts[[1]]}]/6
+	]
 ]
 
 MeshAreas[mesh_]:=Module[{pts,cells,cellPts,ndim},
 	{pts,cells}=mesh;
 	ndim=Length[cells//First]-1;
-	pts=ArrayPad[pts,{{0,0},{0,1}},1];
 	cellPts=Map[pts[[#]]&,cells];
-	(Det/@cellPts)/(ndim!)
+	If[ndim==2,
+	(Det[{#[[2]]-#[[1]],#[[3]]-#[[1]]}]&/@cellPts)/2,
+	(Det[{#[[2]]-#[[1]],#[[3]]-#[[1]],#[[4]]-#[[1]]}]&/@cellPts)/6
+	]
 ]
 
 
@@ -96,14 +104,14 @@ cTriArea=Compile[{{pts,_Real,2}},-pts[[1,2]]pts[[2,1]]+pts[[1,1]]pts[[2,2]]+pts[
 
 cTetVolume::usage = "cTetVolume[{p1,p2,p3,p4}] returns volume of a nemerical tetrahedron specified by the coordinates of its four vertices."
 cTetVolume=Compile[{{pts,_Real,2}},
--pts[[1,3]] pts[[2,2]] pts[[3,1]]+pts[[1,2]] pts[[2,3]] pts[[3,1]]+pts[[1,3]] pts[[2,1]] pts[[3,2]]
+-(-pts[[1,3]] pts[[2,2]] pts[[3,1]]+pts[[1,2]] pts[[2,3]] pts[[3,1]]+pts[[1,3]] pts[[2,1]] pts[[3,2]]
 -pts[[1,1]] pts[[2,3]] pts[[3,2]]-pts[[1,2]] pts[[2,1]] pts[[3,3]]+pts[[1,1]] pts[[2,2]] pts[[3,3]]
 +pts[[1,3]] pts[[2,2]] pts[[4,1]]-pts[[1,2]] pts[[2,3]] pts[[4,1]]-pts[[1,3]] pts[[3,2]] pts[[4,1]]
 +pts[[2,3]] pts[[3,2]] pts[[4,1]]+pts[[1,2]] pts[[3,3]] pts[[4,1]]-pts[[2,2]] pts[[3,3]] pts[[4,1]]
 -pts[[1,3]] pts[[2,1]] pts[[4,2]]+pts[[1,1]] pts[[2,3]] pts[[4,2]]+pts[[1,3]] pts[[3,1]] pts[[4,2]]
 -pts[[2,3]] pts[[3,1]] pts[[4,2]]-pts[[1,1]] pts[[3,3]] pts[[4,2]]+pts[[2,1]] pts[[3,3]] pts[[4,2]]
 +pts[[1,2]] pts[[2,1]] pts[[4,3]]-pts[[1,1]] pts[[2,2]] pts[[4,3]]-pts[[1,2]] pts[[3,1]] pts[[4,3]]
-+pts[[2,2]] pts[[3,1]] pts[[4,3]]+pts[[1,1]] pts[[3,2]] pts[[4,3]]-pts[[2,1]] pts[[3,2]] pts[[4,3]],
++pts[[2,2]] pts[[3,1]] pts[[4,3]]+pts[[1,1]] pts[[3,2]] pts[[4,3]]-pts[[2,1]] pts[[3,2]] pts[[4,3]]),
 RuntimeAttributes->{Listable},CompilationTarget->"C",Parallelization->True]
 
 
@@ -119,7 +127,7 @@ FindFlippedCells[mesh_]:=Pick[Range[Length[mesh[[2]]]],NonPositive[MeshAreas[mes
 
 (* angle related *)
 SignedAngle[u_, v_] := Module[{uvCos, uvSin},
-  uvCos = u.v;
+  uvCos = u . v;
   uvSin = u[[1]] v[[2]] - u[[2]] v[[1]];
   If[uvCos==uvSin==0,0,
   ArcTan[uvCos, uvSin]
