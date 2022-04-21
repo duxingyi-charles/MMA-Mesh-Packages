@@ -1,3 +1,5 @@
+(* ::Package:: *)
+
 (* Wolfram Language Package *)
 
 BeginPackage["MeshIO`"]
@@ -7,7 +9,7 @@ ExportMesh::usage = "ExportMesh[filename,mesh] export mesh to an OBJ format file
 ImportMesh::usage = "ImportMesh[filename] import mesh from an OBJ file named filename."
 
 ExportMeshWithUV::usage = "ExportMeshWithUV[filename,mesh,uvmesh] export mesh to an OBJ format with uv stored in vt."
-(*ImportMeshWithUV::usage = "ImportMeshWithUV[filename] reads an obj file and returns {mesh, uvmesh}"*)
+ImportMeshWithUV::usage = "ImportMeshWithUV[filename] reads an obj file and returns {mesh, uvmesh}."
 
 ExportOVM::usage = "ExportOVM[filename,mesh] export tet mesh to an OVM file named filename."
 ImportOVM::usage = "ImportOVM[filename] import tet mesh from an OVM file named filename."
@@ -68,6 +70,22 @@ ExportMeshWithUV[filename_,mesh_,uvmesh_]:=Module[{vertices=mesh[[1]],faces=mesh
 	Export[filename,data,"Table","FieldSeparators"->" "]	
 ]
 
+
+
+ImportMeshWithUV[filename_]:=Module[{data,verts,faces,uvs,mesh,uvmesh},
+	data=Import[filename,"Table"];
+	verts=Select[data,#[[1]]=="v"&][[All,2;;]];
+	faces=Select[data,#[[1]]=="f"&][[All,2;;]];
+	uvs=Select[data,#[[1]]=="vt"&][[All,2;;]];
+	mesh={verts,faces};
+	uvmesh={uvs,faces};
+	If[StringQ[faces[[1,1]]],
+		mesh=removeSingleSlash[mesh];
+		uvmesh=removeSingleSlash[uvmesh]
+	];
+	(**)
+	{mesh,uvmesh}
+]
 
 
 ExportOVM[filename_,mesh_]:=Module[
