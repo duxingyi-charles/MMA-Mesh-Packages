@@ -187,7 +187,7 @@ Clear[render2d];
 
 render2d[mesh_, opts : OptionsPattern[]] :=
 	Show[ShowMesh[mesh, FilterRules[{opts}, Options[ShowMesh]], "edgeColor"
-		 -> {Opacity[0.3, Black], Thickness[Min[0.002, 0.1 Sqrt[1.0 / Length[
+		 -> {Opacity[0.2, Black], Thickness[Min[0.002, 0.1 Sqrt[1.0 / Length[
 		mesh[[2]]]]]]}, "showBad" -> True], Graphics[Line[Map[mesh[[1, #]]&, 
 		extractBoundary2d[mesh]]]]]
 
