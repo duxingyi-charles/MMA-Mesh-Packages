@@ -3,39 +3,54 @@
 (* Wolfram Language Package *)
 
 BeginPackage["MeshIO`"]
-(* Exported symbols added here with SymbolName::usage *)  
+
+(* Exported symbols added here with SymbolName::usage *)
 
 ExportMesh::usage = "ExportMesh[filename,mesh] export mesh to an OBJ format file named filename."
+
 ImportMesh::usage = "ImportMesh[filename] import mesh from an OBJ file named filename."
 
 ExportMeshWithUV::usage = "ExportMeshWithUV[filename,mesh,uvmesh] export mesh to an OBJ format with uv stored in vt."
+
 ImportMeshWithUV::usage = "ImportMeshWithUV[filename] reads an obj file and returns {mesh, uvmesh}."
 
 ExportOVM::usage = "ExportOVM[filename,mesh] export tet mesh to an OVM file named filename."
+
 ImportOVM::usage = "ImportOVM[filename] import tet mesh from an OVM file named filename."
 
 ImportMSH::usage = "ImportMSH[filename] import tet mesh from a MSH file named filename."
+
+ImportMESH::usage = "ImportMESH[filename] import tri/tet mesh from a MESH file named filename."
 
 ImportVTK::usage = "ImportVTK[filename] import tet mesh from a VTK file named filename."
 
 ExportVTK::usage = "ExportVTK[filename,mesh(,header)] export tri/tet mesh to a VTK file named filename. 
 					You can use header (optional) to describe the mesh."
 
-Begin["`Private`"] (* Begin Private Context *) 
+Begin["`Private`"] (* Begin Private Context *)
 
-ExportMesh[filename_,mesh_]:=Module[{vertices=mesh[[1]],faces=mesh[[2]],data},
-	If[Length[mesh[[1,1]]]==2, vertices=ArrayPad[vertices,{{0,0},{0,1}},0]];
-	vertices=Map[Prepend[#,"v"]&,vertices];
-	faces=Map[Prepend[#,"f"]&,faces];
-	data=Join[vertices,faces];
-	Export[filename,data,"Table","FieldSeparators"->" "]	
-]
+ExportMesh[filename_, mesh_] :=
+    Module[{vertices = mesh[[1]], faces = mesh[[2]], data},
+        If[Length[mesh[[1, 1]]] == 2,
+            vertices = ArrayPad[vertices, {{0, 0}, {0, 1}}, 0]
+        ];
+        vertices = Map[Prepend[#, "v"]&, vertices];
+        faces = Map[Prepend[#, "f"]&, faces];
+        data = Join[vertices, faces];
+        Export[filename, data, "Table", "FieldSeparators" -> " "]
+    ]
 
 (*"f xx/yy/zz" --> "f xx"*)
-removeSingleSlash[mesh_]:={mesh[[1]],Map[ToExpression[First[StringSplit[ToString[#],"/"]]]&,mesh[[2]],{2}]}
+
+removeSingleSlash[mesh_] :=
+    {mesh[[1]], Map[ToExpression[First[StringSplit[ToString[#], "/"]]
+        ]&, mesh[[2]], {2}]}
 
 (*chech if list is a list of constant numbers*)
-constantListQ[list_]:=Length[list]==0 || AllTrue[list,(NumberQ[#] && #==list[[1]])&]
+
+constantListQ[list_] :=
+    Length[list] == 0 || AllTrue[list, (NumberQ[#] && # == list[[1]])&
+        ]
 
 
 (*ReduceIdenticalDimensions[mesh] returns a mesh with identical dimensions removed.*)
@@ -211,6 +226,25 @@ tData=lines[[i+1;;i+nTet,2;;]];
 tData=ImportString[StringRiffle[tData],"Table"];
 (*mesh*)
 {vData,tData}
+]
+
+ImportMESH[filename_]:=Module[{data,labelIds,labelAssoc,nV,verts,nS,simplices},
+data=Import[filename,"Table"];
+labelIds=Select[Range[Length@data],StringQ[data[[#,1]]]&];
+labelAssoc=AssociationThread[data[[labelIds,1]],labelIds];
+(*vertices*)
+nV=data[[labelAssoc["Vertices"]+1]][[1]];
+verts=data[[labelAssoc["Vertices"]+2;;labelAssoc["Vertices"]+1+nV,;;-2]];
+If[KeyExistsQ[labelAssoc,"Tetrahedra"],
+(*tet mesh*)
+nS=data[[labelAssoc["Tetrahedra"]+1]][[1]];
+simplices=data[[labelAssoc["Tetrahedra"]+2;;labelAssoc["Tetrahedra"]+1+nS,;;-2]],
+(*tri mesh*)
+nS=data[[labelAssoc["Triangles"]+1]][[1]];
+simplices=data[[labelAssoc["Triangles"]+2;;labelAssoc["Triangles"]+1+nS,;;-2]]
+];
+(*mesh*)
+{verts,simplices}
 ]
 
 ImportVTK[filename_]:=Module[{lines,i,nv,vData,nTet,tData},
