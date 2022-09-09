@@ -1,3 +1,5 @@
+(* ::Package:: *)
+
 (* Wolfram Language Package *)
 
 BeginPackage["Render`", {"MeshUtil`"}]
@@ -18,32 +20,25 @@ Begin["`Private`"](* Begin Private Context *)
 
 (*visualization*)
 
-Options[ShowMesh] = {"edgeColor" -> Black, "triangleStyle" -> Opacity[
-	0.], "handleVertexIds" -> {}, "showHandle" -> True, "handleColor" -> 
+Options[ShowMesh] = {"edgeColor" -> Black, "triangleStyle" -> Nothing, "handleVertexIds" -> {}, "showHandle" -> True, "handleColor" -> 
 	Green, "handlePointSize" -> 0.02, "handleColors" -> {Green}, "showBad"
-	 -> True, "badColor" -> Red, "badPointSize" -> 0.03, "showBadVertex" 
-	-> False, "showFlowVector" -> False, "flowVectorColor" -> Blue, "flowVectorScale"
-	 -> 0.5, "highlightTriangleIds" -> {}, "highlightTriangleColor" -> Lighter[
+	 -> True,"badOpacity"->0.5,"badColor" -> Red, "badPointSize" -> 0.03, "showBadVertex" 
+	-> False,  "highlightTriangleIds" -> {}, "highlightTriangleColor" -> Lighter[
 	Blue], "highlightVertexIds" -> {}, "highlightPointSize" -> 0.025, "highlightVertexColor"
 	 -> Blue, "PlotRange" -> All, "ImageSize" -> Automatic, "Axes" -> False
 	}
 
 ShowMesh[mesh_, opts : OptionsPattern[]] :=
 	Module[
-		{vertices = mesh[[1]], faces = mesh[[2]], badTriangleIds, badTriangles,
+		{vertices = mesh[[1]], faces = mesh[[2]], badTriangleIds, badTriangles,goodTriangleIds,
 			 badVertexIds, flowVectors, highlightVertColorList}
 		,
 		(*init*)
-		If[OptionValue["showBad"] \[Or] OptionValue["showFlowVector"],
+		If[OptionValue["showBad"],
 			badTriangleIds = FindFlippedCells[mesh];
+			goodTriangleIds = Complement[Range[Length[faces]],badTriangleIds];
 			badVertexIds = faces[[badTriangleIds]] // Flatten // DeleteDuplicates
 				
-		];
-		If[OptionValue["showFlowVector"],
-			flowVectors = ConstantArray[{0., 0.}, Length[vertices]];
-			badTriangles = faces[[badTriangleIds]];
-			Scan[Do[flowVectors[[#[[i]]]] += Cross[vertices[[#[[Mod[i + 2, 3, 
-				1]]]]] - vertices[[#[[Mod[i + 1, 3, 1]]]]]], {i, 3}]&, badTriangles]
 		];
 		If[Length[OptionValue["highlightVertexIds"]] > 0,
 			highlightVertColorList = OptionValue["highlightVertexColor"];
@@ -63,20 +58,22 @@ ShowMesh[mesh_, opts : OptionsPattern[]] :=
 			{
 				EdgeForm[OptionValue["edgeColor"]]
 				,
-				(*triangles*)
-				{OptionValue["triangleStyle"], Map[Triangle[vertices[[#]]]&, faces[[Range[Length[faces]]]]]}
-				,
 				(*bad triangles*)
 				If[OptionValue["showBad"],
-					{Opacity[0.5], OptionValue["badColor"], EdgeForm[Opacity[1.0, OptionValue[
-						"badColor"]]], Map[Triangle[vertices[[#]]]&, faces[[badTriangleIds]]]
-						}
+					{
+					(*good triangles*)
+					{OptionValue["triangleStyle"],GraphicsComplex[vertices,Triangle[faces[[goodTriangleIds]]]]},
+					(*bad triangles*)
+					{FaceForm[Opacity[OptionValue["badOpacity"],OptionValue["badColor"]]], GraphicsComplex[vertices,Triangle[faces[[badTriangleIds]]]]}
+						},
+						(*all triangles*)
+						{OptionValue["triangleStyle"],GraphicsComplex[vertices,Triangle[faces]]}
 				]
 				,
 				(*highlight triangles*)
 				If[Length[OptionValue["highlightTriangleIds"]] > 0,
-					{Opacity[0.5], OptionValue["highlightTriangleColor"], Map[Triangle[
-						vertices[[#]]]&, faces[[OptionValue["highlightTriangleIds"]]]]}
+					{Opacity[0.5], OptionValue["highlightTriangleColor"], 
+					GraphicsComplex[vertices,Triangle[faces[[OptionValue["highlightTriangleIds"]]]]]}
 				]
 				,
 				(*bad vertices*)
@@ -104,14 +101,6 @@ ShowMesh[mesh_, opts : OptionsPattern[]] :=
 						{PointSize[OptionValue["handlePointSize"]], OptionValue["handleColor"
 							], Point[mesh[[1, OptionValue["handleVertexIds"]]]]}
 					]
-				]
-				,
-				(*flow vectors*)
-				If[OptionValue["showFlowVector"],
-					{OptionValue["flowVectorColor"], 
-					Map[Arrow[{vertices[[#]], vertices[[#]] + OptionValue["flowVectorScale"] * flowVectors[[#]]}]&,
-					 badVertexIds
-						]}
 				]
 			}
 			,
