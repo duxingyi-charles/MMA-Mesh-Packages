@@ -56,7 +56,7 @@ ShowMesh[mesh_, opts : OptionsPattern[]] :=
 		(*graphics*)
 		Graphics[
 			{
-				EdgeForm[OptionValue["edgeColor"]]
+				EdgeForm[OptionValue["edgeColor"]],FaceForm[]
 				,
 				(*bad triangles*)
 				If[OptionValue["showBad"],
