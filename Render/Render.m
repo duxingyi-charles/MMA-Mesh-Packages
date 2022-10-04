@@ -25,7 +25,8 @@ Options[ShowMesh] = {"edgeColor" -> Black, "triangleStyle" -> Nothing, "handleVe
 	 -> True,"badOpacity"->0.5,"badColor" -> Red, "badPointSize" -> 0.03, "showBadVertex" 
 	-> False,  "highlightTriangleIds" -> {}, "highlightTriangleColor" -> Lighter[
 	Blue], "highlightVertexIds" -> {}, "highlightPointSize" -> 0.025, "highlightVertexColor"
-	 -> Blue, "PlotRange" -> All, "ImageSize" -> Automatic, "Axes" -> False
+	 -> Blue, "BoundaryForm"->Black,
+	 "PlotRange" -> All, "ImageSize" -> Automatic, "Axes" -> False
 	}
 
 ShowMesh[mesh_, opts : OptionsPattern[]] :=
@@ -101,7 +102,9 @@ ShowMesh[mesh_, opts : OptionsPattern[]] :=
 						{PointSize[OptionValue["handlePointSize"]], OptionValue["handleColor"
 							], Point[mesh[[1, OptionValue["handleVertexIds"]]]]}
 					]
-				]
+				],
+				(*boundary edges*)
+				{OptionValue["BoundaryForm"],Line[Map[mesh[[1, #]]&, extractBoundary2d[mesh]]]}
 			}
 			,
 			FilterRules[{opts}, Options[Graphics]]
@@ -175,10 +178,9 @@ ShowMesh3D[mesh_, opts : OptionsPattern[]] :=
 Clear[render2d];
 
 render2d[mesh_, opts : OptionsPattern[]] :=
-	Show[ShowMesh[mesh, FilterRules[{opts}, Options[ShowMesh]], "edgeColor"
+	ShowMesh[mesh, FilterRules[{opts}, Options[ShowMesh]], "edgeColor"
 		 -> {Opacity[0.2, Black], Thickness[Min[0.002, 0.1 Sqrt[1.0 / Length[
-		mesh[[2]]]]]]}, "showBad" -> True], Graphics[Line[Map[mesh[[1, #]]&, 
-		extractBoundary2d[mesh]]]]]
+		mesh[[2]]]]]]}, "showBad" -> True]
 
 (* surface tri mesh *)
 
@@ -190,7 +192,7 @@ getRange[verts_] :=
 Clear[render3d]
 
 Options[render3d] = {"faceColor" -> Apply[RGBColor, col], "EdgeForm" 
-	-> {}};
+	-> {}, "BoundaryForm"->GrayLevel[.3]};
 
 render3d[mesh_, opts : OptionsPattern[]] :=
 	Module[{verts, faces, range, bdedges},
@@ -199,8 +201,9 @@ render3d[mesh_, opts : OptionsPattern[]] :=
 		bdedges = extractBoundary2d[mesh];
 		Graphics3D[{{Specularity[GrayLevel[0.6], 100], Opacity[.8], EdgeForm[
 			OptionValue["EdgeForm"]],(*Apply[RGBColor, col]*)OptionValue["faceColor"
-			], Map[Polygon[verts[[#]]]&, faces]}, {Specularity[White, 100], GrayLevel[
-			.3], Map[Tube[verts[[#]], range * 0.008]&, bdedges]}}, Lighting -> "Neutral",
+			], Map[Polygon[verts[[#]]]&, faces]}, {Specularity[White, 100], 
+			(*GrayLevel[.3]*)OptionValue["BoundaryForm"], 
+			Map[Tube[verts[[#]], range * 0.008]&, bdedges]}}, Lighting -> "Neutral",
 			 Boxed -> False]
 	]
 
