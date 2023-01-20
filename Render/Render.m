@@ -73,7 +73,7 @@ ShowMesh[mesh_, opts : OptionsPattern[]] :=
 				,
 				(*highlight triangles*)
 				If[Length[OptionValue["highlightTriangleIds"]] > 0,
-					{Opacity[0.5], OptionValue["highlightTriangleColor"], 
+					{FaceForm[Opacity[0.5, OptionValue["highlightTriangleColor"]]], 
 					GraphicsComplex[vertices,Triangle[faces[[OptionValue["highlightTriangleIds"]]]]]}
 				]
 				,
