@@ -192,18 +192,18 @@ getRange[verts_] :=
 Clear[render3d]
 
 Options[render3d] = {"faceColor" -> Apply[RGBColor, col], "EdgeForm" 
-	-> {}, "BoundaryForm"->GrayLevel[.3]};
+	-> {}, "BoundaryForm"->GrayLevel[.3],"Opacity"->.8};
 
 render3d[mesh_, opts : OptionsPattern[]] :=
 	Module[{verts, faces, range, bdedges},
 		{verts, faces} = mesh;
 		range = getRange[verts];
 		bdedges = extractBoundary2d[mesh];
-		Graphics3D[{{Specularity[GrayLevel[0.6], 100], Opacity[.8], EdgeForm[
-			OptionValue["EdgeForm"]],(*Apply[RGBColor, col]*)OptionValue["faceColor"
-			], Map[Polygon[verts[[#]]]&, faces]}, {Specularity[White, 100], 
-			(*GrayLevel[.3]*)OptionValue["BoundaryForm"], 
-			Map[Tube[verts[[#]], range * 0.008]&, bdedges]}}, Lighting -> "Neutral",
+		Graphics3D[{{Specularity[GrayLevel[0.6], 100], Opacity[OptionValue["Opacity"]], EdgeForm[
+			OptionValue["EdgeForm"]],OptionValue["faceColor"
+			], GraphicsComplex[verts,Triangle[faces]]}, {Specularity[White, 100], 
+			OptionValue["BoundaryForm"], 
+			GraphicsComplex[verts,Tube[bdedges,range*0.008]]}}, Lighting -> "Neutral",
 			 Boxed -> False]
 	]
 
