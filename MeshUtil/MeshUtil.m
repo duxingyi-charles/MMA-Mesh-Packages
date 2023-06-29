@@ -63,9 +63,10 @@ where vertices not incident to any triangles are removed."
 
 Begin["`Private`"] (* Begin Private Context *) 
 
-MeshToMeshRegion[mesh_]:=If[Length[mesh[[2,1]]]==3,
-	MeshRegion[mesh[[1]],Map[Triangle,mesh[[2]]]],
-	MeshRegion[mesh[[1]],Map[Tetrahedron,mesh[[2]]]]
+MeshToMeshRegion[mesh_]:=Switch[Length[mesh[[2,1]]],
+2,MeshRegion[mesh[[1]],Map[Line,mesh[[2]]]],
+3,MeshRegion[mesh[[1]],Map[Triangle,mesh[[2]]]],
+4,MeshRegion[mesh[[1]],Map[Tetrahedron,mesh[[2]]]]
 ]
 
 MeshRegionToMesh[reg_]:={MeshCoordinates[reg],Flatten[List @@@ MeshCells[reg,RegionDimension[reg]],1]}
