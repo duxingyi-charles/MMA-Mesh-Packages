@@ -45,6 +45,10 @@ ExportMesh[filename_, mesh_] :=
 removeSingleSlash[mesh_] :=
     {mesh[[1]], Map[ToExpression[First[StringSplit[ToString[#], "/"]]
         ]&, mesh[[2]], {2}]}
+        
+keepSingleSlash[mesh_,slashId_]:= 
+	{mesh[[1]], Map[ToExpression[StringSplit[ToString[#], "/"][[slashId]]
+        ]&, mesh[[2]], {2}]}
 
 (*chech if list is a list of constant numbers*)
 
@@ -65,7 +69,7 @@ ImportMesh[filename_,OptionsPattern[]]:=Module[{file,lines,vertices,faces,mesh},
 	lines=ReadList[file,Word,RecordLists->True];
 	Close[file];
 	vertices=Select[lines,(#[[1]]=="v")&];
-	vertices=ImportString[StringRiffle[vertices[[All,2;;]]],"Table"];
+	vertices=ImportString[StringRiffle[vertices[[All,2;;4]]],"Table"];
 	faces=Select[lines,(#[[1]]=="f")&];
 	faces=ImportString[StringRiffle[faces[[All,2;;]]],"Table"];
 	mesh={vertices,faces};
@@ -89,14 +93,14 @@ ExportMeshWithUV[filename_,mesh_,uvmesh_]:=Module[{vertices=mesh[[1]],faces=mesh
 
 ImportMeshWithUV[filename_]:=Module[{data,verts,faces,uvs,mesh,uvmesh},
 	data=Import[filename,"Table"];
-	verts=Select[data,#[[1]]=="v"&][[All,2;;]];
-	faces=Select[data,#[[1]]=="f"&][[All,2;;]];
-	uvs=Select[data,#[[1]]=="vt"&][[All,2;;]];
+	verts=Select[data,Length[#]>0&&#[[1]]=="v"&][[All,2;;4]];
+	faces=Select[data,Length[#]>0&&#[[1]]=="f"&][[All,2;;]];
+	uvs=Select[data,Length[#]>0&&#[[1]]=="vt"&][[All,2;;3]];
 	mesh={verts,faces};
 	uvmesh={uvs,faces};
 	If[StringQ[faces[[1,1]]],
-		mesh=removeSingleSlash[mesh];
-		uvmesh=removeSingleSlash[uvmesh]
+		mesh=keepSingleSlash[mesh,1];
+		uvmesh=keepSingleSlash[uvmesh,2]
 	];
 	(**)
 	{mesh,uvmesh}
