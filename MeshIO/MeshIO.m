@@ -2,7 +2,7 @@
 
 (* Wolfram Language Package *)
 
-BeginPackage["MeshIO`"]
+BeginPackage["MeshIO`", {"MeshUtil`"}]
 
 (* Exported symbols added here with SymbolName::usage *)
 
@@ -10,9 +10,13 @@ ExportMesh::usage = "ExportMesh[filename,mesh] export mesh to an OBJ format file
 
 ImportMesh::usage = "ImportMesh[filename] import mesh from an OBJ file named filename."
 
+ImportMeshes::usage = "ImportMeshes[fileList] import a combined mesh from a list of OBJ files."
+
 ExportMeshWithUV::usage = "ExportMeshWithUV[filename,mesh,uvmesh] export mesh to an OBJ format with uv stored in vt."
 
 ImportMeshWithUV::usage = "ImportMeshWithUV[filename] reads an obj file and returns {mesh, uvmesh}."
+
+ImportMeshesWithUV::usage = "ImportMeshesWithUV[filename] reads and combines a list of OBJ files with UV and returns {mesh, uvmesh}."
 
 ExportOVM::usage = "ExportOVM[filename,mesh] export tet mesh to an OVM file named filename."
 
@@ -79,16 +83,21 @@ ImportMesh[filename_,OptionsPattern[]]:=Module[{file,lines,vertices,faces,mesh},
 ]
 
 
+ImportMeshes[fileList_]:=Module[{meshList,vIdOffsets,verts,faces},
+	meshList=ImportMesh/@fileList;
+	CombineMeshes[meshList]
+]
+
+
 ExportMeshWithUV[filename_,mesh_,uvmesh_]:=Module[{vertices=mesh[[1]],faces=mesh[[2]],uv=uvmesh[[1]],data},
 	If[Length[mesh[[1,1]]]==2, vertices=ArrayPad[vertices,{{0,0},{0,1}},0]];
 	vertices=Map[Prepend[#,"v"]&,vertices];
 	uv=Map[Prepend[#,"vt"]&,uv];
-	faces=Map[ToString[#]<>"/"<>ToString[#]&,faces,{2}];
+	faces=MapThread[ToString[#1]<>"/"<>ToString[#2]&,{mesh[[2]],uvmesh[[2]]},2];
 	faces=Map[Prepend[#,"f"]&,faces];
 	data=Join[vertices,uv,faces];
 	Export[filename,data,"Table","FieldSeparators"->" "]	
 ]
-
 
 
 ImportMeshWithUV[filename_]:=Module[{data,verts,faces,uvs,mesh,uvmesh},
@@ -104,6 +113,14 @@ ImportMeshWithUV[filename_]:=Module[{data,verts,faces,uvs,mesh,uvmesh},
 	];
 	(**)
 	{mesh,uvmesh}
+]
+
+
+ImportMeshesWithUV[fileList_]:=Module[{dataList,meshList,uvMeshList},
+	dataList=ImportMeshWithUV/@fileList;
+	meshList=dataList[[All,1]];
+	uvMeshList=dataList[[All,2]];
+	{CombineMeshes[meshList],CombineMeshes[uvMeshList]}
 ]
 
 

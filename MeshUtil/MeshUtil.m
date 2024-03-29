@@ -8,6 +8,9 @@ BeginPackage["MeshUtil`"]
 MeshToMeshRegion::usage = "MeshToMeshRegion[mesh] converts mesh to built-in MeshRegion."
 MeshRegionToMesh::usage = "MeshRegionToMesh[reg] converts built-in MeshRegion to mesh."
 
+(* mesh operations *)
+CombineMeshes::usage = "CombineMeshes[meshList] combines a list of meshes into one mesh."
+
 (* basic geometry *)
 MeshBoundingBox::usage = "MeshBoundingBox[mesh] gives the bounding box of the mesh."
 
@@ -70,6 +73,13 @@ MeshToMeshRegion[mesh_]:=Switch[Length[mesh[[2,1]]],
 ]
 
 MeshRegionToMesh[reg_]:={MeshCoordinates[reg],Flatten[List @@@ MeshCells[reg,RegionDimension[reg]],1]}
+
+CombineMeshes[meshList_]:=Module[{vIdOffsets,verts,faces},
+	vIdOffsets=Most@FoldList[Plus,0,Length/@meshList[[All,1]]];
+	verts=Flatten[meshList[[All,1]],1];
+	faces=Flatten[MapThread[#1+#2&,{meshList[[All,2]],vIdOffsets}],1];
+	{verts,faces}
+]
 
 MeshBoundingBox::targ = "No points in mesh."
 MeshBoundingBox[mesh_]:=If[Length[mesh[[1]]]==0,
